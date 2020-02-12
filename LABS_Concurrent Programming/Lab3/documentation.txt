@@ -1,0 +1,35 @@
+Lab 3 
+Anton Eliasson Gusfassson & Christian Nilsson
+
+Our solution consists of some extra fields:
+
+A ForkJoinSolver root. This is initialized to “this” when the first ForkJoinSolver is being created. Every instance of ForkJoinSolver created/forked afterwards will take root to the constructor, meaning every instance has the same root.  
+
+A shared (thread safe) set of integers “visited”, which is used to determine if a position is available. This set belongs to root, and is only initialized by root. But since every instance of ForkJoinSolver knows root, every instance can also read and write from/to it. 
+
+An AtomicBoolean “stop” in order to tell if current instance of ForkJoinSolver should continue looping through the task or return null (return null if stop gives true). If a goal has been found, there is no reason for the other instances to continue looping through. 
+
+The rest of the fields are being inherited by SequentialSolver. 
+
+In the method parallelSearch(): 
+
+1)  Puts a player on the board with a start position, pushing the start position to frontier.
+
+2)  Creates a local HashSet of kids. This HashSet will contain every ForkJoinSolver forked from this instance. 
+
+3)  As long as frontier isn’t empty or fieldvarible stop doesn’t return true, we pop a new current position from the frontier set, checks if has goal
+
+4)   If goal, move player to goal and set “stop” to true. Lastly, return the path it has taken. 
+
+
+5)  As long as the current position can be added to visited (add method to visited returns boolean) and goal wasn’t found, move player to current. Then add every neighbor to current to this instance’s frontier as long as the neighbor hasn’t been visited.
+
+As long as the frontier now contains more than one neighbor to current, create and fork new instances of ForkJoinSolver where neighbor position becomes its starting position, add the forked instances to this current instance’s HashSet of kids. Repeat until frontier is empty. Every forked child will then start from step 1)
+
+If the frontier size is equal to 1, repeat from step 3). 
+
+6)  If frontier is empty or stop is set to true, go through every child returning either null or a list of visited cells. 
+
+
+
+ 
